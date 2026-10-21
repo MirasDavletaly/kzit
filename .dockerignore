@@ -1,0 +1,8 @@
+node_modules
+logs
+live-test-out
+tools
+tailscale
+.impeccable
+.env
+*.wav

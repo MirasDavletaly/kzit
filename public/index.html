@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>KZIT - Italiano / Қазақша</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0b1630; --panel:rgba(255,255,255,.06); --line:rgba(255,255,255,.12); --txt:#eef2ff; --mut:#9fb0d6; --y:#ffd400; --blue:#1f4fd1; --red:#ff4d5e; --green:#28c76f; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--txt); font-family:Inter,system-ui,sans-serif; }
+  body { background: radial-gradient(1200px 600px at 20% -10%, #1f3f9a 0%, transparent 60%), radial-gradient(900px 500px at 110% 110%, #0f6b78 0%, transparent 55%), var(--bg); }
+  button { font:inherit; cursor:pointer; border:0; border-radius:12px; }
+  .hidden { display:none !important; }
+
+  /* home */
+  #home { min-height:100%; display:flex; align-items:center; justify-content:center; padding:24px 16px; }
+  .card { width:100%; max-width:440px; background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:28px 24px; backdrop-filter:blur(18px); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px; letter-spacing:.2px; }
+  .brand .dot { width:10px; height:10px; border-radius:50%; background:var(--y); box-shadow:0 0 14px var(--y); }
+  .sub { color:var(--mut); margin:6px 0 22px; font-size:14px; line-height:1.45; }
+  .lbl { font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:var(--mut); margin:18px 0 8px; }
+  .langs { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .lang { padding:14px 10px; background:rgba(255,255,255,.05); border:1px solid var(--line); color:var(--txt); text-align:center; }
+  .lang b { display:block; font-size:16px; }
+  .lang span { font-size:12px; color:var(--mut); }
+  .lang.on { border-color:var(--y); background:rgba(255,212,0,.10); }
+  input.pin { width:100%; padding:14px; font:600 26px/1 Inter,monospace; letter-spacing:10px; text-align:center; color:var(--txt); background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:12px; outline:none; }
+  input.pin:focus { border-color:var(--y); }
+  .row { display:grid; grid-template-columns:1fr; gap:10px; margin-top:12px; }
+  .btn { padding:14px; font-weight:600; background:var(--y); color:#0b1630; }
+  .btn.sec { background:rgba(255,255,255,.08); color:var(--txt); border:1px solid var(--line); }
+  .or { text-align:center; color:var(--mut); font-size:12px; margin:16px 0 4px; }
+  .err { color:#ff9aa5; font-size:13px; min-height:18px; margin-top:10px; }
+  .hint { color:var(--mut); font-size:12px; margin-top:16px; line-height:1.5; }
+
+  /* call */
+  #call { position:fixed; inset:0; display:grid; grid-template-rows:auto 1fr auto; }
+  header.bar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; padding-top:max(10px, env(safe-area-inset-top)); }
+  .pinbox { font-size:13px; color:var(--mut); }
+  .pinbox b { color:var(--txt); font-size:18px; letter-spacing:4px; margin-left:6px; }
+  .status { font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.08); color:var(--mut); white-space:nowrap; }
+  .status.live { background:rgba(40,199,111,.18); color:#7ef0ad; }
+  .stage { position:relative; overflow:hidden; margin:0 10px; border-radius:18px; background:#050b1a; }
+  #remote { width:100%; height:100%; object-fit:cover; background:#050b1a; }
+  #local { position:absolute; right:12px; top:12px; width:26%; max-width:200px; aspect-ratio:3/4; object-fit:cover; border-radius:14px; border:1px solid var(--line); transform:scaleX(-1); background:#000; }
+  .waiting { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--mut); text-align:center; padding:20px; }
+  .waiting b { color:var(--txt); font-size:42px; letter-spacing:10px; }
+  .subs { position:absolute; left:10px; right:10px; bottom:10px; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+  .cap { align-self:flex-start; max-width:92%; background:rgba(5,11,26,.72); border:1px solid var(--line); border-radius:14px; padding:10px 12px; backdrop-filter:blur(10px); animation:in .25s ease; }
+  .cap.self { align-self:flex-end; background:rgba(31,79,209,.55); }
+  .cap .tr { font-size:18px; font-weight:600; line-height:1.3; }
+  .cap.peer .tr { color:var(--y); }
+  .cap .or { font-size:13px; color:var(--mut); margin:4px 0 0; text-align:left; }
+  .cap.pending { opacity:.7; font-size:13px; color:var(--mut); }
+  @keyframes in { from { transform:translateY(8px); opacity:0 } to { transform:none; opacity:1 } }
+  .meter { position:absolute; left:12px; top:12px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--mut); background:rgba(5,11,26,.6); padding:6px 10px; border-radius:999px; }
+  .meter i { width:60px; height:6px; border-radius:6px; background:rgba(255,255,255,.12); overflow:hidden; display:block; }
+  .meter i s { display:block; height:100%; width:0; background:var(--green); text-decoration:none; transition:width .08s; }
+  .meter.talk { color:#7ef0ad; }
+  footer.ctrl { display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; padding-bottom:max(12px, env(safe-area-inset-bottom)); flex-wrap:wrap; }
+  .cb { width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.10); color:var(--txt); display:flex; align-items:center; justify-content:center; border:1px solid var(--line); }
+  .cb.off { background:var(--red); border-color:var(--red); }
+  .cb.end { background:var(--red); border-color:var(--red); width:64px; }
+  .cb svg { width:22px; height:22px; }
+  @media (min-width:900px) {
+    #call { grid-template-columns: 1fr 360px; grid-template-rows:auto 1fr auto; }
+    header.bar { grid-column:1 / 3; }
+    .stage { grid-column:1; }
+    .log { display:block !important; grid-column:2; grid-row:2; margin-right:10px; overflow:auto; background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:12px; }
+    footer.ctrl { grid-column:1 / 3; }
+    .subs .cap:not(:nth-last-child(-n+2)) { display:none; }
+  }
+  .log { display:none; }
+  .log h4 { margin:2px 4px 10px; font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:var(--mut); }
+  .log .cap { animation:none; margin-bottom:8px; max-width:100%; }
+  .log .cap .tr { font-size:15px; }
+</style>
+</head>
+<body>
+
+<section id="home">
+  <div class="card">
+    <div class="brand"><span class="dot"></span>KZIT · Italiano ⇄ Қазақша</div>
+    <div class="sub">Videochiamata con interprete AI simultaneo.<br>Бейнеқоңырау, жасанды интеллект аудармашысымен.</div>
+
+    <div class="lbl">La tua lingua · Сіздің тіліңіз</div>
+    <div class="langs">
+      <button class="lang on" data-lang="it"><b>Italiano</b><span>Parlo italiano</span></button>
+      <button class="lang" data-lang="kk"><b>Қазақша</b><span>Қазақша сөйлеймін</span></button>
+    </div>
+
+    <div class="lbl">PIN</div>
+    <input class="pin" id="pin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">
+    <div class="row">
+      <button class="btn" id="join">Entra · Кіру</button>
+    </div>
+    <div class="or">oppure · немесе</div>
+    <div class="row">
+      <button class="btn sec" id="create">Crea una nuova stanza · Жаңа бөлме құру</button>
+    </div>
+    <div class="err" id="err"></div>
+    <div class="hint">🎧 Usa le cuffie per evitare l'eco · Жаңғырық болмас үшін құлаққап киіңіз.</div>
+  </div>
+</section>
+
+<section id="call" class="hidden">
+  <header class="bar">
+    <div class="pinbox">PIN<b id="pinShow">------</b></div>
+    <div class="status" id="status">In attesa · Күтуде</div>
+  </header>
+  <div class="stage">
+    <video id="remote" autoplay playsinline muted></video>
+    <video id="local" autoplay playsinline muted></video>
+    <div class="waiting" id="waiting">
+      <div>Condividi il PIN · PIN кодты бөлісіңіз</div>
+      <b id="pinBig">------</b>
+      <div>In attesa dell'altro partecipante · Екінші қатысушыны күтуде</div>
+    </div>
+    <div class="meter" id="meter"><i><s id="lvl"></s></i><span id="meterTxt">Microfono</span></div>
+    <div class="subs" id="subs"></div>
+  </div>
+  <aside class="log" id="log"><h4>Trascrizione · Транскрипция</h4></aside>
+  <footer class="ctrl">
+    <button class="cb" id="bMic" title="Microfono / Микрофон"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button class="cb" id="bCam" title="Camera / Камера"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></button>
+    <button class="cb end" id="bEnd" title="Esci / Шығу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15c5-4 13-4 18 0l-2 3-4-1v-3H9v3l-4 1z"/></svg></button>
+  </footer>
+</section>
+
+<script src="app.js?v=7"></script>
+</body>
+</html>

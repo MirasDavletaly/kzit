@@ -1,0 +1,36 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>KZIT log</title>
+<style>
+body{margin:0;font:13px/1.4 ui-monospace,Menlo,monospace;background:#0b1630;color:#e6ecff}
+header{position:sticky;top:0;background:#0f1d40;padding:10px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #22325e;z-index:2}
+input,select,button{font:inherit;background:#16264f;color:#e6ecff;border:1px solid #2b3d70;border-radius:6px;padding:5px 8px}
+table{border-collapse:collapse;width:100%}td{padding:4px 8px;border-bottom:1px solid #18284f;vertical-align:top}
+td.t{color:#8ea0cc;white-space:nowrap}td.e{white-space:nowrap;font-weight:600}td.d{word-break:break-word}
+.srv{color:#9fd3ff}.cli{color:#ffd66b}.err{color:#ff8a95}.utt{color:#8ff0b8}
+.tr{color:#fff;font-family:Inter,system-ui,sans-serif;font-size:14px}
+audio{height:26px;vertical-align:middle}
+</style></head><body>
+<header><b>KZIT log</b>
+<input type="date" id="day"> <input id="pin" placeholder="PIN" size="7">
+<label><input type="checkbox" id="lvl"> livelli microfono</label>
+<label><input type="checkbox" id="auto" checked> aggiorna</label>
+<input id="q" placeholder="filtro testo" size="14">
+<span id="n"></span></header>
+<table id="tb"></table>
+<script>
+const k=new URLSearchParams(location.search).get('k');const $=i=>document.getElementById(i);
+$('day').value=new Date().toISOString().slice(0,10);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function load(){
+ const u=`api/logs?k=${encodeURIComponent(k)}&day=${$('day').value}`+($('pin').value?`&pin=${$('pin').value}`:'')+($('lvl').checked?'':'&nolevel=1');
+ const j=await (await fetch(u)).json(); const q=$('q').value.toLowerCase();
+ let rows=j.recs.filter(r=>!q||JSON.stringify(r).toLowerCase().includes(q)).reverse();
+ $('n').textContent=rows.length+' eventi';
+ $('tb').innerHTML=rows.map(r=>{const {t,ev,...o}=r;let cls=ev.startsWith('client:')?'cli':'srv';if(/error|fail|bad|blocked|backlog/.test(ev))cls='err';if(ev.startsWith('utt:'))cls='utt';
+  let extra='';if(o.file)extra+=` <audio controls preload="none" src="api/audio/${o.file}?k=${encodeURIComponent(k)}"></audio>`;
+  let txt='';if(o.transcript!==undefined)txt=`<div class="tr">${esc(o.transcript)}<br>→ ${esc(o.translation)}</div>`;
+  if(o.d&&o.d.orig!==undefined)txt=`<div class="tr">${esc(o.d.orig)}<br>→ ${esc(o.d.trans)}</div>`;
+  return `<tr><td class="t">${t.slice(11,23)}</td><td class="e ${cls}">${esc(ev)}</td><td class="d">${txt}${esc(JSON.stringify(o))}${extra}</td></tr>`}).join('');
+}
+['day','pin','lvl','q'].forEach(i=>$(i).onchange=load);setInterval(()=>{if($('auto').checked)load()},4000);load();
+</script></body></html>

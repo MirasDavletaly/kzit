@@ -1,0 +1,32 @@
+# KZIT su Synology (Container Manager -> Progetto) come macchina separata "kzit" nella rete Tailscale.
+# Il contenitore tailscale ha stato e rete propri (userspace, niente /dev/net/tun): non tocca il Tailscale del NAS
+# né le altre macchine. L'app vive nella sua rete, non apre porte sul NAS; tailscale serve dà HTTPS valido:
+#   https://kzit.<tailnet>.ts.net/kzit/
+# In .env (accanto a questo file) servono le chiavi dell'app e TS_AUTHKEY=tskey-auth-... (solo per il primo avvio).
+services:
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: kzit-tailscale
+    hostname: kzit
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_HOSTNAME=kzit
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=true
+      - TS_SERVE_CONFIG=/config/serve.json
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/serve.json:/config/serve.json:ro
+    restart: unless-stopped
+
+  kzit:
+    build: .
+    image: kzit:latest
+    container_name: kzit
+    network_mode: service:tailscale
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./logs:/app/logs
+    depends_on:
+      - tailscale
+    restart: unless-stopped
