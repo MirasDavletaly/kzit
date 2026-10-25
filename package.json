@@ -2,7 +2,7 @@
   "name": "kzit",
   "version": "1.0.0",
   "private": true,
-  "description": "Video call con PIN e interprete AI italiano <-> kazako (OpenRouter)",
+  "description": "Video call con PIN e interprete AI italiano <-> russo (OpenRouter)",
   "main": "server.js",
   "scripts": { "start": "node server.js", "live-test": "node tools/live-translate-test.js" },
   "dependencies": { "express": "^4.21.2", "ws": "^8.18.0" }

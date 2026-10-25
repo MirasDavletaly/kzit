@@ -24,16 +24,16 @@
   clog('boot', { url: location.href, ua: navigator.userAgent, lang: navigator.language, screen: screen.width + 'x' + screen.height, dpr: devicePixelRatio,
     conn: navigator.connection ? { type: navigator.connection.effectiveType, down: navigator.connection.downlink, rtt: navigator.connection.rtt } : null });
   const T = {
-    it: { waitPeer: 'In attesa · Күтуде', live: 'In linea · Байланыста', left: "L'altro è uscito · Қатысушы шықты",
+    it: { waitPeer: 'In attesa · Ожидание', live: 'In linea · На связи', left: "L'altro è uscito · Собеседник вышел",
           mic: 'Microfono', talk: 'Ti ascolto…', translating: 'Traduzione in corso…', muted: 'Microfono spento',
-          errPin: 'PIN non valido · PIN қате', errFull: 'Stanza piena · Бөлме толы', errMany: 'Troppi tentativi, riprova tra qualche minuto',
-          errMedia: 'Consenti microfono e fotocamera · Микрофон мен камераға рұқсат беріңіз', reconnect: 'Riconnessione…',
-          errKey: 'Per creare una stanza serve il link con la chiave · Бөлме құру үшін кілті бар сілтеме керек' },
-    kk: { waitPeer: 'Күтуде · In attesa', live: 'Байланыста · In linea', left: 'Қатысушы шықты · L\'altro è uscito',
-          mic: 'Микрофон', talk: 'Тыңдап тұрмын…', translating: 'Аударылуда…', muted: 'Микрофон өшірулі',
-          errPin: 'PIN қате · PIN non valido', errFull: 'Бөлме толы · Stanza piena', errMany: 'Тым көп әрекет, кейінірек қайталаңыз',
-          errMedia: 'Микрофон мен камераға рұқсат беріңіз · Consenti microfono e fotocamera', reconnect: 'Қайта қосылу…',
-          errKey: 'Бөлме құру үшін кілті бар сілтеме керек · Per creare una stanza serve il link con la chiave' }
+          errPin: 'PIN non valido · Неверный PIN', errFull: 'Stanza piena · Комната заполнена', errMany: 'Troppi tentativi, riprova tra qualche minuto',
+          errMedia: 'Consenti microfono e fotocamera · Разрешите доступ к микрофону и камере', reconnect: 'Riconnessione…',
+          errKey: 'Per creare una stanza serve il link con la chiave · Для создания комнаты нужна ссылка с ключом' },
+    ru: { waitPeer: 'Ожидание · In attesa', live: 'На связи · In linea', left: 'Собеседник вышел · L\'altro è uscito',
+          mic: 'Микрофон', talk: 'Слушаю вас…', translating: 'Перевод…', muted: 'Микрофон выключен',
+          errPin: 'Неверный PIN · PIN non valido', errFull: 'Комната заполнена · Stanza piena', errMany: 'Слишком много попыток, попробуйте через несколько минут',
+          errMedia: 'Разрешите доступ к микрофону и камере · Consenti microfono e fotocamera', reconnect: 'Переподключение…',
+          errKey: 'Для создания комнаты нужна ссылка с ключом · Per creare una stanza serve il link con la chiave' }
   };
   let lang = 'it', S = T.it;
   let pin = null, role = null, ws = null, pc = null, engine = 'classic';

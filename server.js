@@ -1,4 +1,4 @@
-// KZIT - video call 1:1 con PIN e interprete AI italiano <-> kazako via OpenRouter
+// KZIT - video call 1:1 con PIN e interprete AI italiano <-> russo via OpenRouter
 // Servito sotto https://test.horizonaether.com/kzit/ (Apache -> 127.0.0.1:PORT)
 'use strict';
 const fs = require('fs');
@@ -22,8 +22,8 @@ const MODEL_TRANSLATE = process.env.MODEL_TRANSLATE || 'google/gemini-3.8-flash'
 const MODEL_TTS = process.env.MODEL_TTS || 'google/gemini-3.8-flash-tts';
 const BASE = '/kzit';
 const OR = 'https://openrouter.ai/api/v1';
-const LANG = { it: 'italiano (Italian)', kk: 'kazako (Kazakh, Cyrillic script)' };
-const VOICE = { it: process.env.VOICE_IT || 'Charon', kk: process.env.VOICE_KK || 'Kore' };
+const LANG = { it: 'italiano (Italian)', ru: 'russo (Russian, Cyrillic script)' };
+const VOICE = { it: process.env.VOICE_IT || 'Charon', ru: process.env.VOICE_RU || 'Kore' };
 // motore "live": Gemini Live Translate, voce -> voce in streaming mentre si parla; "classic": frase per frase via OpenRouter
 const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
 const MODEL_LIVE = process.env.MODEL_LIVE || 'gemini-3.5-live-translate-preview';
@@ -127,7 +127,7 @@ async function orFetch(url, body, asBuffer) {
       'Authorization': 'Bearer ' + KEY,
       'Content-Type': 'application/json',
       'HTTP-Referer': 'https://test.horizonaether.com/kzit/',
-      'X-Title': 'KZIT interprete IT-KK'
+      'X-Title': 'KZIT interprete IT-RU'
     },
     body: JSON.stringify(body)
   });
@@ -140,11 +140,11 @@ async function orFetch(url, body, asBuffer) {
 
 async function listenAndTranslate(wavB64, from, to, context) {
   const sys =
-    'You are a professional simultaneous interpreter between Italian and Kazakh at a business meeting. ' +
+    'You are a professional simultaneous interpreter between Italian and Russian at a business meeting. ' +
     'You receive a short audio clip spoken in ' + LANG[from] + '. ' +
     'Return ONLY a JSON object: {"transcript": "<exact transcription in the source language>", "translation": "<faithful, natural translation into ' + LANG[to] + '>"}. ' +
     'Keep names, numbers and technical terms accurate. Do not add comments. ' +
-    'Kazakh must be written in Cyrillic. ' +
+    'Russian must be written in Cyrillic. ' +
     'If the clip contains no intelligible speech (silence, noise, coughs), return {"transcript": "", "translation": ""}.';
   const msgs = [{ role: 'system', content: sys }];
   if (context) msgs.push({ role: 'user', content: 'Previous lines of the conversation, for context only (do not translate them):\n' + context });
@@ -178,8 +178,8 @@ async function speak(text, lang) {
     input: text,
     voice: VOICE[lang] || 'Kore',
     response_format: 'pcm',
-    instructions: lang === 'kk'
-      ? 'Speak in Kazakh with natural Kazakh pronunciation, clear, at a brisk interpreting pace.'
+    instructions: lang === 'ru'
+      ? 'Speak in Russian with natural Russian pronunciation, clear, at a brisk interpreting pace.'
       : 'Parla in italiano con pronuncia naturale, chiara, a ritmo sostenuto da interprete.'
   }, true);
   const rate = 24000, h = Buffer.alloc(44);
@@ -195,7 +195,7 @@ async function speak(text, lang) {
 // Il modello risponde con ~3 s di ritardo: testo a pezzi + PCM 24 kHz continuo, silenzio compreso.
 function liveTarget(room, m) {
   const p = other(room, m.token);
-  return p ? p.lang : (m.lang === 'it' ? 'kk' : 'it');
+  return p ? p.lang : (m.lang === 'it' ? 'ru' : 'it');
 }
 function rms(pcm) {
   const n = pcm.length >> 1; let s = 0;
@@ -275,14 +275,15 @@ setInterval(() => {   // chiudo le sessioni ferme (il modello continua a mandare
 
 // ---------- app ----------
 const app = express();
-app.set('trust proxy', 'loopback');   // solo il proxy locale (Apache, tailscale serve): X-Forwarded-For del client non conta
+// solo il proxy davanti all'app (Apache in locale; in Docker tailscale serve dalla rete del progetto): X-Forwarded-For del client non conta
+app.set('trust proxy', process.env.TRUST_PROXY || 'loopback');
 app.use(BASE + '/api', express.json({ limit: '20kb' }));
 
 app.use((req, res, next) => (req.path === BASE || req.path === '/' ? res.redirect(BASE + '/') : next()));
 app.use(BASE, express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0 }));
 
 app.post(BASE + '/api/room', (req, res) => {
-  const lang = req.body && req.body.lang === 'kk' ? 'kk' : 'it';
+  const lang = req.body && req.body.lang === 'ru' ? 'ru' : 'it';
   if (CREATE_KEY && (req.body && req.body.key) !== CREATE_KEY) { L('room:bad-key', who(req)); return res.status(403).json({ error: 'key' }); }
   if (rooms.size > 50) return res.status(503).json({ error: 'busy' });
   const pin = newPin();
@@ -309,7 +310,7 @@ app.post(BASE + '/api/join', (req, res) => {
     if (!freed) { L('join:full', Object.assign({ pin }, who(req))); return res.status(409).json({ error: 'full' }); }
     removeMember(room, freed, 'replaced-on-join');
   }
-  const lang = req.body.lang === 'kk' ? 'kk' : 'it';
+  const lang = req.body.lang === 'ru' ? 'ru' : 'it';
   const token = addMember(room, lang, req.body.name);
   L('room:join', Object.assign({ pin, lang, member: token.slice(0, 8) }, who(req)));
   res.json({ pin, token, lang, engine: room.engine, role: 'guest' });
@@ -326,7 +327,7 @@ app.post(BASE + '/api/utt', express.raw({ type: 'audio/wav', limit: '3mb' }), (r
   if (m.busy > 6) { L('utt:backlog', { pin: room.pin, member: mm, busy: m.busy }); return res.status(429).json({ error: 'backlog' }); }
   room.last = Date.now();
   const peer = other(room, m.token);
-  const from = m.lang, to = peer ? peer.lang : (m.lang === 'it' ? 'kk' : 'it');
+  const from = m.lang, to = peer ? peer.lang : (m.lang === 'it' ? 'ru' : 'it');
   const id = crypto.randomBytes(6).toString('hex');
   const t0 = Date.now();
   const durMs = Math.round((req.body.length - 44) / 32);
@@ -353,7 +354,7 @@ app.post(BASE + '/api/utt', express.raw({ type: 'audio/wav', limit: '3mb' }), (r
   m.chain = m.chain.then(() => job).then(tr => {
     const ms = Date.now() - t0;
     if (!tr.transcript && !tr.translation) { L('utt:drop', { pin: room.pin, member: mm, id, same: !!tr.same, ms }); send(m, { type: 'drop', id }); return; }
-    room.history = (room.history || []).concat([(from === 'it' ? 'IT: ' : 'KK: ') + tr.transcript]).slice(-8);
+    room.history = (room.history || []).concat([(from === 'it' ? 'IT: ' : 'RU: ') + tr.transcript]).slice(-8);
     const cap = { type: 'caption', id, from, to, orig: tr.transcript, trans: tr.translation, ms };
     send(m, Object.assign({ who: 'self' }, cap));
     const pp = other(room, m.token);
@@ -457,4 +458,5 @@ server.on('upgrade', (req, socket, head) => {
 });
 setInterval(() => { for (const c of wss.clients) { try { c.ping(); } catch (e) {} } }, 25000);
 
-server.listen(PORT, '127.0.0.1', () => L('server:start', { port: PORT, key: !!KEY, engine: ENGINE, MODEL_TRANSLATE, MODEL_TTS, MODEL_LIVE }));
+const HOST = process.env.HOST || '127.0.0.1';   // in Docker 0.0.0.0: la porta resta nella rete interna del progetto
+server.listen(PORT, HOST, () => L('server:start', { host: HOST, port: PORT, key: !!KEY, engine: ENGINE, MODEL_TRANSLATE, MODEL_TTS, MODEL_LIVE }));

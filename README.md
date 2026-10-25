@@ -1,10 +1,10 @@
-# KZIT - 1:1 video call with AI interpreter (Italian <-> Kazakh)
+# KZIT - 1:1 video call with AI interpreter (Italian <-> Russian)
 
 Source code of the prototype running at https://test.horizonaether.com/kzit/
 
 ## What it does
 - 1:1 video call in the browser (WebRTC, peer-to-peer), protected by a 6-digit PIN.
-- Each participant chooses their language (Italian or Kazakh).
+- Each participant chooses their language (Italian or Russian).
 - The listener hears only the translated voice (the original voice of the other participant is muted) and sees subtitles in both languages.
 - Two translation engines, chosen when the room is created:
   - **live** (default when `GEMINI_API_KEY` is set): Gemini Live Translate (`gemini-3.5-live-translate-preview`), speech-to-speech streaming. While someone speaks, the browser streams 16 kHz PCM in 100 ms chunks over the WebSocket (plus 3.5 s after the last voice: the model translates at the pace of the incoming audio and needs that tail to finish the sentence). The server keeps one Gemini session per speaker and relays translated text fragments and 24 kHz PCM (silence dropped) to the listener. The translation runs about 3 s behind the speaker, while they are still talking.
@@ -31,7 +31,7 @@ node server.js            # listens on 127.0.0.1:3121, base path /kzit
 ```
 
 ## Synology (Container Manager) + Tailscale
-`docker-compose.yml` runs KZIT as a separate machine `kzit` in the tailnet. The `tailscale/tailscale` container has its own state and userspace networking, so it does not touch the NAS's own Tailscale or other machines. The app container lives inside its network and opens no ports on the NAS. `tailscale serve` provides HTTPS with a valid certificate, which browsers require for camera and microphone.
+`docker-compose.yml` runs KZIT as a separate machine `kzit` in the tailnet. The `tailscale/tailscale` container has its own state and userspace networking, so it does not touch the NAS's own Tailscale or other machines. Both containers sit on the project's internal Docker network and `tailscale serve` reaches the app by name (`http://kzit-app:3121`), so either one can restart without cutting off the other (sharing the Tailscale container's network namespace, as in the first version, left the app unreachable with a 502 every time that container restarted). No port is opened on the NAS. `tailscale serve` provides HTTPS with a valid certificate, which browsers require for camera and microphone.
 
 1. Tailscale admin console: DNS → enable MagicDNS and HTTPS Certificates; Settings → Keys → generate an auth key (one-off is enough). Funnel is on in `tailscale/serve.json` (`AllowFunnel`), so the address is public: the tailnet policy must give the machine the `funnel` attribute (`"nodeAttrs": [{"target": ["autogroup:member"], "attr": ["funnel"]}]`, present in the default policy).
 2. Copy the project to the NAS, e.g. `/volume1/docker/kzit` (`kzit-synology.zip` has the needed files), plus `.env` with the app keys, `CREATE_KEY`, a non-default `LOG_KEY` and `TS_AUTHKEY=tskey-auth-...`.
@@ -68,7 +68,7 @@ ProxyPassReverse "/kzit" "http://127.0.0.1:3121/kzit"
 | PORT | 3121 | local port |
 | MODEL_TRANSLATE | google/gemini-3.5-flash-lite | audio -> transcript + translation |
 | MODEL_TTS | google/gemini-3.8-flash-lite-tts | text -> speech (PCM 24 kHz, wrapped as WAV) |
-| VOICE_IT / VOICE_KK | Charon / Kore | TTS voices |
+| VOICE_IT / VOICE_RU | Charon / Kore | TTS voices |
 | LOG_KEY | - | key for the log viewer |
 | LOG_AUDIO_DAYS | 14 | retention of saved audio clips |
 
@@ -82,15 +82,15 @@ ProxyPassReverse "/kzit" "http://127.0.0.1:3121/kzit"
 ```
 # set GEMINI_API_KEY in .env, then
 npm install
-node tools/live-translate-test.js --to kk logs/audio/2026-10-20/*_it_in.wav   # Italian -> Kazakh
-node tools/live-translate-test.js --to it logs/audio/2026-10-20/*_kk_in.wav   # Kazakh -> Italian
+node tools/live-translate-test.js --to ru logs/audio/2026-10-20/*_it_in.wav   # Italian -> Russian
+node tools/live-translate-test.js --to it logs/audio/2026-10-20/*_ru_in.wav   # Russian -> Italian
 ```
 - Input: WAV 16 kHz mono 16-bit (like the clips saved in `logs/audio/`); other formats (phone recordings, mp3, m4a) need ffmpeg.
 - Output in `live-test-out/`: `<name>.<lang>.wav` (translation only), `<name>.<lang>.timeline.wav` (original at 30% plus the translation placed when it arrives, to hear the real delay), `report-*.json` (transcripts and timings).
 - `start lag`: seconds from the start of speech to the first translated audio. `end lag`: seconds from the end of speech to the end of the translated audio.
 
 ## Known limits
-- Live engine: preview model. It may misdetect Kazakh as Russian (there is no way to force the source language) and, translating before the sentence ends, it can commit to a wrong word or number. Audio of live calls is not saved, only the text.
+- Live engine: preview model. It automatically detects the source language (there is no way to force it) and, translating before the sentence ends, it can commit to a wrong word or number. Audio of live calls is not saved, only the text.
 - Classic engine: consecutive (sentence by sentence) interpretation, not word by word.
 - While the translated voice is playing, the listener's microphone is not sent for translation (prevents re-translating the interpreter). Headphones recommended.
 - No TURN server: on very restrictive corporate networks the peer-to-peer video may not connect.

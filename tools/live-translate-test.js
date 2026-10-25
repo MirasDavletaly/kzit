@@ -3,8 +3,8 @@
 // Ogni file viene inviato a velocità reale in blocchi da 100 ms, come farebbe il microfono,
 // e si misura dopo quanto arriva la voce tradotta.
 //
-//   node tools/live-translate-test.js --to kk frase_it.wav altra_frase_it.m4a
-//   node tools/live-translate-test.js --to it фраза_kk.wav
+//   node tools/live-translate-test.js --to ru frase_it.wav altra_frase_it.m4a
+//   node tools/live-translate-test.js --to it фраза_ru.wav
 //
 // Richiede GEMINI_API_KEY (.env o variabile d'ambiente). Per file diversi da WAV 16 kHz mono 16 bit serve ffmpeg.
 'use strict';
@@ -48,7 +48,7 @@ for (let i = 0; i < argv.length; i++) {
   else files.push(...expand(a));
 }
 if (!opt.to || !files.length) {
-  console.log('Usage: node tools/live-translate-test.js --to <kk|it> [--model name] [--out dir] [--tail seconds] file1 [file2 ...]\n' +
+  console.log('Usage: node tools/live-translate-test.js --to <ru|it> [--model name] [--out dir] [--tail seconds] file1 [file2 ...]\n' +
     '  --to    language of the translation (the files must be in the other language)\n' +
     '  --tail  seconds of silence sent after each file so the model can finish (default 4)');
   process.exit(1);

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>KZIT - Italiano / Қазақша</title>
+<title>KZIT - Italiano / Русский</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -83,41 +83,41 @@
 
 <section id="home">
   <div class="card">
-    <div class="brand"><span class="dot"></span>KZIT · Italiano ⇄ Қазақша</div>
-    <div class="sub">Videochiamata con interprete AI simultaneo.<br>Бейнеқоңырау, жасанды интеллект аудармашысымен.</div>
+    <div class="brand"><span class="dot"></span>KZIT · Italiano ⇄ Русский</div>
+    <div class="sub">Videochiamata con interprete AI simultaneo.<br>Видеозвонок с синхронным AI-переводчиком.</div>
 
-    <div class="lbl">La tua lingua · Сіздің тіліңіз</div>
+    <div class="lbl">La tua lingua · Ваш язык</div>
     <div class="langs">
       <button class="lang on" data-lang="it"><b>Italiano</b><span>Parlo italiano</span></button>
-      <button class="lang" data-lang="kk"><b>Қазақша</b><span>Қазақша сөйлеймін</span></button>
+      <button class="lang" data-lang="ru"><b>Русский</b><span>Я говорю по-русски</span></button>
     </div>
 
     <div class="lbl">PIN</div>
     <input class="pin" id="pin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">
     <div class="row">
-      <button class="btn" id="join">Entra · Кіру</button>
+      <button class="btn" id="join">Entra · Войти</button>
     </div>
-    <div class="or">oppure · немесе</div>
+    <div class="or">oppure · или</div>
     <div class="row">
-      <button class="btn sec" id="create">Crea una nuova stanza · Жаңа бөлме құру</button>
+      <button class="btn sec" id="create">Crea una nuova stanza · Создать комнату</button>
     </div>
     <div class="err" id="err"></div>
-    <div class="hint">🎧 Usa le cuffie per evitare l'eco · Жаңғырық болмас үшін құлаққап киіңіз.</div>
+    <div class="hint">🎧 Usa le cuffie per evitare l'eco · Используйте наушники, чтобы избежать эха.</div>
   </div>
 </section>
 
 <section id="call" class="hidden">
   <header class="bar">
     <div class="pinbox">PIN<b id="pinShow">------</b></div>
-    <div class="status" id="status">In attesa · Күтуде</div>
+    <div class="status" id="status">In attesa · Ожидание</div>
   </header>
   <div class="stage">
     <video id="remote" autoplay playsinline muted></video>
     <video id="local" autoplay playsinline muted></video>
     <div class="waiting" id="waiting">
-      <div>Condividi il PIN · PIN кодты бөлісіңіз</div>
+      <div>Condividi il PIN · Поделитесь PIN-кодом</div>
       <b id="pinBig">------</b>
-      <div>In attesa dell'altro partecipante · Екінші қатысушыны күтуде</div>
+      <div>In attesa dell'altro partecipante · Ожидание собеседника</div>
     </div>
     <div class="meter" id="meter"><i><s id="lvl"></s></i><span id="meterTxt">Microfono</span></div>
     <div class="subs" id="subs"></div>
@@ -126,10 +126,10 @@
   <footer class="ctrl">
     <button class="cb" id="bMic" title="Microfono / Микрофон"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
     <button class="cb" id="bCam" title="Camera / Камера"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></button>
-    <button class="cb end" id="bEnd" title="Esci / Шығу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15c5-4 13-4 18 0l-2 3-4-1v-3H9v3l-4 1z"/></svg></button>
+    <button class="cb end" id="bEnd" title="Esci / Выйти"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15c5-4 13-4 18 0l-2 3-4-1v-3H9v3l-4 1z"/></svg></button>
   </footer>
 </section>
 
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>
